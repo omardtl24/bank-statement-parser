@@ -7,6 +7,6 @@ class Loader(ABC):
     """Loaders read an extract source and return its raw text content."""
 
     @abstractmethod
-    def load(self, path: str) -> str:
+    def load(self, file_path: str) -> object:
         """Load and return raw text content from an extract path."""
         raise NotImplementedError

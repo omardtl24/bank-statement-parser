@@ -32,3 +32,14 @@ class Transaction:
                 f"Subcategory '{self.subcategory.name}' does not belong to "
                 f"category '{self.category.name}'."
             )
+    
+    def to_dict(self) -> dict:
+        """Return a dictionary representation of the transaction."""
+        return {
+            "date": self.date.isoformat(),
+            "description": self.description,
+            "amount": str(self.amount),
+            "category": self.category.name,
+            "subcategory": self.subcategory.name,
+            "balance": str(self.balance) if self.balance is not None else None,
+        }
