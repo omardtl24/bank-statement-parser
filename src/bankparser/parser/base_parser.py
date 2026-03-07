@@ -1,5 +1,3 @@
-"""Abstract parser interface for bank extract text."""
-
 from abc import ABC, abstractmethod
 from typing import List
 

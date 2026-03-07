@@ -1,5 +1,3 @@
-"""Placeholder casting helpers for parser implementations."""
-
 from datetime import date
 from decimal import Decimal
 

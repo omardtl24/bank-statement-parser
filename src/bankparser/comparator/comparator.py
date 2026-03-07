@@ -1,5 +1,3 @@
-"""Placeholder comparison logic for transaction collections."""
-
 from typing import List
 
 from bankparser.models.transaction import Transaction
