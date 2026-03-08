@@ -1,7 +1,7 @@
 from .comparator import TransactionComparator
 from .loader import Loader, PDFLoader
 from .models import Transaction
-from .parser import BancolombiaParser, LuloBankParser, Parser
+from .parser import BancolombiaParser, LuloBankParser, NequiParser, Parser
 from .utils import parse_amount, parse_date
 
 __all__ = [
@@ -12,6 +12,7 @@ __all__ = [
 	"Parser",
 	"LuloBankParser",
 	"BancolombiaParser",
+	"NequiParser",
 	"parse_amount",
 	"parse_date",
 ]

@@ -34,6 +34,8 @@ class Transaction:
             self.date = parse_date(self.date)
         if isinstance(self.amount, str):
             self.amount = parse_amount(self.amount)
+        if isinstance(self.balance, str):
+            self.balance = parse_amount(self.balance)
 
     def to_dict(self) -> dict:
         """Serialize the transaction to a plain dictionary.
@@ -54,5 +56,5 @@ class Transaction:
             "amount": str(self.amount),
             "account": self.account,
             "currency": self.currency,
-            "balance": str(self.balance) if self.balance is not None else None
+            "balance": self.balance if self.balance is not None else None
         }
