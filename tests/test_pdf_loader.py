@@ -25,8 +25,7 @@ def test_load_extracts_and_joins_text(monkeypatch: pytest.MonkeyPatch) -> None:
     fake_open = Mock(return_value=_mock_pdf_context_manager([page_one, page_two]))
     monkeypatch.setattr("bankparser.loader.pdf_loader.pdfplumber.open", fake_open)
 
-    loader = PDFLoader()
-    result = loader.load("statement.pdf", password="secret")
+    result = PDFLoader.load("statement.pdf", password="secret")
 
     assert result == "line 1\nline 2"
     fake_open.assert_called_once_with("statement.pdf", password="secret")
@@ -45,8 +44,7 @@ def test_load_skips_empty_page_text(monkeypatch: pytest.MonkeyPatch) -> None:
     fake_open = Mock(return_value=_mock_pdf_context_manager([page_one, page_two, page_three]))
     monkeypatch.setattr("bankparser.loader.pdf_loader.pdfplumber.open", fake_open)
 
-    loader = PDFLoader()
-    result = loader.load("statement.pdf")
+    result = PDFLoader.load("statement.pdf")
 
     assert result == "kept"
 
@@ -69,8 +67,7 @@ def test_load_from_scanned_pdf_runs_ocr_for_each_page(
     monkeypatch.setattr("bankparser.loader.pdf_loader.pdfplumber.open", fake_open)
     monkeypatch.setattr("bankparser.loader.pdf_loader.pytesseract.image_to_string", fake_ocr)
 
-    loader = PDFLoader()
-    result = loader.load_from_scanned_pdf(
+    result = PDFLoader.load_from_scanned_pdf(
         "scanned.pdf",
         password="pw",
         lang="por",
@@ -100,7 +97,6 @@ def test_load_from_scanned_pdf_skips_empty_ocr_text(
     monkeypatch.setattr("bankparser.loader.pdf_loader.pdfplumber.open", fake_open)
     monkeypatch.setattr("bankparser.loader.pdf_loader.pytesseract.image_to_string", fake_ocr)
 
-    loader = PDFLoader()
-    result = loader.load_from_scanned_pdf("scanned.pdf")
+    result = PDFLoader.load_from_scanned_pdf("scanned.pdf")
 
     assert result == "final text"

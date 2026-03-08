@@ -1,3 +1,3 @@
-from bankparser.comparator.comparator import TransactionComparator
+from .comparator import TransactionComparator
 
 __all__ = ["TransactionComparator"]

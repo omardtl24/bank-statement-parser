@@ -9,7 +9,6 @@ class PDFLoader(Loader):
     """Loader for PDF bank statements."""
 
     def load(
-        self,
         file_path: str,
         password: Optional[str] = None,
         split_pages: bool = False,
@@ -44,7 +43,6 @@ class PDFLoader(Loader):
         return "\n".join(text_parts).strip()
 
     def load_from_scanned_pdf(
-        self,
         file_path: str,
         password: Optional[str] = None,
         lang: str = "eng",

@@ -7,7 +7,7 @@ class Loader(ABC):
     """Loaders read an extract source and return its raw text content."""
 
     @abstractmethod
-    def load(self, file_path: str) -> object:
+    def load(file_path: str) -> object:
         """Load raw extract content from a file path.
 
         Args:
