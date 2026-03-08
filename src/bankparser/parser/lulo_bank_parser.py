@@ -1,8 +1,8 @@
-from bankparser.parser import BankParser
+from bankparser.parser import Parser
 from bankparser.loader.pdf_loader import PDFLoader
 import re
 
-class LuloBankParser(BankParser):
+class LuloBankParser(Parser):
     def parse(self) -> None:
         """Parse a Lulo Bank statement and populate transaction results.
 
@@ -46,7 +46,7 @@ class LuloBankParser(BankParser):
                               'currency': 'COP'}
         pockets_transactions = self._extract_data(
             pockets,
-            pockets,
+            pockets_pattern,
             pkt_cols_groups_ids,
             pkt_default_values
         )

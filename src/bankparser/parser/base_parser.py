@@ -4,7 +4,16 @@ import pandas as pd
 from bankparser.models.transaction import Transaction
 import re
 
-PARAMS = ["date", "description", "amount", "balance", "category", "subcategory"]
+PARAMS = [
+    "date",
+    "description",
+    "amount",
+    "balance",
+    "category",
+    "subcategory",
+    "currency",
+    "account",
+]
 
 class Parser(ABC):
     """Parsers transform raw extract text into transaction objects."""
@@ -82,7 +91,7 @@ class Parser(ABC):
             match_ = re.search(pattern, flow)
             if match_:
                 r = {
-                    col_name: match_.group(id) if id is not None else ""
+                    col_name: match_.group(id).strip() if id is not None else ""
                     for col_name, id in cols_groups_ids.items()
                 }
                 for col_name, value in default_values.items():

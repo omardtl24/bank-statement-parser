@@ -1,9 +1,7 @@
 from dataclasses import dataclass
-from datetime import date as Date
+from datetime import date as Date, datetime as DateTime
 from decimal import Decimal
 from typing import Optional, Union
-
-from bankparser.models.category import Category, Subcategory
 from bankparser.utils.casting import parse_amount, parse_date
 
 
@@ -11,7 +9,7 @@ from bankparser.utils.casting import parse_amount, parse_date
 class Transaction:
     """Structured transaction extracted from a bank statement."""
 
-    date: Union[Date, str]
+    date: Union[Date, DateTime, str]
     description: str
     amount: Union[Decimal, str]
     currency: str
@@ -51,7 +49,7 @@ class Transaction:
             AttributeError: If ``self.date`` does not expose ``isoformat``.
         """
         return {
-            "date": self.date.isoformat(),
+            "date": self.date,
             "description": self.description,
             "amount": str(self.amount),
             "account": self.account,
