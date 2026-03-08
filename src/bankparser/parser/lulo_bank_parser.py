@@ -2,6 +2,14 @@ from bankparser.parser import Parser
 from bankparser.loader.pdf_loader import PDFLoader
 import re
 
+PARTS_PATTERN = r"Movimientos\s*(.*?)\s*Bolsillos\s*(.*)"
+MOVEMENTS_PATTERN = r"\s*\d*\s*(\d{2} [a-z]*\. \d{4})\s*\d{2} [a-z]*\. \d{4}\s*(.*)\s*([\+\-][\d,\.]+)"
+POCKETS_PATTERN = r"\s*\d*\s*(\d{2} [a-z]*\. \d{4})\s*(.*)\s*([\+\-][\d,\.]+)"
+MOVEMENTS_COLS_GROUPS_IDS = {"date": 1, "description": 2, "amount": 3}
+MOVEMENTS_DEFAULT_VALUES = {"currency": "COP", "account": "Lulo Bank"}
+POCKETS_COLS_GROUPS_IDS = {"date": 1, "description": 2, "amount": 3}
+POCKETS_DEFAULT_VALUES = {"account": "Lulo Bank Pockets", "currency": "COP"}
+
 class LuloBankParser(Parser):
     def parse(self) -> None:
         """Parse a Lulo Bank statement and populate transaction results.
@@ -21,34 +29,27 @@ class LuloBankParser(Parser):
         # Load document
         raw_input = PDFLoader.load(self.file_path, password=self.password)
         # Split document into parts and extract transactions from movements part
-        parts_pattern = r"Movimientos\s*(.*?)\s*Bolsillos\s*(.*)"
-        splitter = re.search(parts_pattern,raw_input,re.DOTALL)
+        
+        splitter = re.search(PARTS_PATTERN,raw_input,re.DOTALL)
         if splitter:
             movements = splitter.group(1).strip()
             pockets = splitter.group(2).strip()
         else:
             raise ValueError(f"Parsing failed due to file mismatch. File {self.file_path}")
         # Extract movements transactions
-        movements_pattern = r"\s*\d*\s*(\d{2} [a-z]*\. \d{4})\s*\d{2} [a-z]*\. \d{4}\s*(.*)\s*([\+\-][\d,\.]+)"
-        mov_cols_groups_ids = {'date': 1, 'description' : 2, 'amount' : 3  }
-        mov_default_values = {'currency': 'COP',
-                              'account': "Lulo Bank"}
+        
         movements_transactions = self._extract_data(
             movements,
-            movements_pattern,
-            mov_cols_groups_ids,
-            mov_default_values
+            MOVEMENTS_PATTERN,
+            MOVEMENTS_COLS_GROUPS_IDS,
+            MOVEMENTS_DEFAULT_VALUES,
         )
         # Extract pockets transactions
-        pockets_pattern =  r"\s*\d*\s*(\d{2} .* \d{4})\s*(.*)\s*([\+\-][\d,\.]+)"
-        pkt_cols_groups_ids = {'date': 1, 'description' : 2, 'amount' : 3  }
-        pkt_default_values = {'account' : 'Lulo Bank Pockets',
-                              'currency': 'COP'}
         pockets_transactions = self._extract_data(
             pockets,
-            pockets_pattern,
-            pkt_cols_groups_ids,
-            pkt_default_values
+            POCKETS_PATTERN,
+            POCKETS_COLS_GROUPS_IDS,
+            POCKETS_DEFAULT_VALUES,
         )
         # Define result list
         self.transactions = movements_transactions + pockets_transactions

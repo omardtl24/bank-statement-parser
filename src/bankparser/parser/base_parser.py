@@ -9,8 +9,6 @@ PARAMS = [
     "description",
     "amount",
     "balance",
-    "category",
-    "subcategory",
     "currency",
     "account",
 ]
@@ -59,7 +57,8 @@ class Parser(ABC):
                       text: str,
                       pattern: str,
                       cols_groups_ids: dict[str, int | None],
-                      default_values: dict[str, str]
+                      default_values: dict[str, str] = {},
+                      function_mapper: dict[str, callable] = {}
         ) -> List[Transaction]:
         """Extract transactions from text lines using a regular expression.
 
@@ -71,6 +70,9 @@ class Parser(ABC):
                 group indices.
             default_values: Fallback or fixed values injected into every
                 extracted transaction.
+            function_mapper: Mapping between transaction field names and functions that take 
+                the extracted string value and return a transformed value.Applied after regex 
+                extraction and default value injection.
 
         Returns:
             A list of ``Transaction`` objects created from all matching lines.
@@ -83,8 +85,11 @@ class Parser(ABC):
             ValueError: Propagated when ``Transaction`` validation fails
                 (for example, invalid date/amount parsing).
         """
+
         assert set(cols_groups_ids.keys()).issubset(PARAMS), "cols_groups_ids keys must be a subset of PARAMS"
         assert set(default_values.keys()).issubset(PARAMS), "default_values keys must be a subset of PARAMS"
+        assert set(function_mapper.keys()).issubset(cols_groups_ids.keys()), "function_mapper keys must be a subset of cols_groups_ids keys"
+        
         flows = text.split('\n')
         data = []
         for flow in flows:
@@ -96,6 +101,8 @@ class Parser(ABC):
                 }
                 for col_name, value in default_values.items():
                     r[col_name] = value
+                for col_name, func in function_mapper.items():
+                    r[col_name] = func(r[col_name])
                 data.append(Transaction(**r))
         return data
 
