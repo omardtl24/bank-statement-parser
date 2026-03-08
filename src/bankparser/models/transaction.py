@@ -53,7 +53,7 @@ class Transaction:
         return {
             "date": self.date,
             "description": self.description,
-            "amount": str(self.amount),
+            "amount": self.amount,
             "account": self.account,
             "currency": self.currency,
             "balance": self.balance if self.balance is not None else None
