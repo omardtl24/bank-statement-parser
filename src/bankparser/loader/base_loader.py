@@ -7,11 +7,13 @@ class Loader(ABC):
     """Loaders read an extract source and return its raw text content."""
 
     @abstractmethod
-    def load(file_path: str) -> object:
+    def load(file_path: str, **kwargs) -> object:
         """Load raw extract content from a file path.
 
         Args:
             file_path: Path to the file that should be read.
+            **kwargs: Loader-specific options (for example, password,
+                delimiter, or split behavior).
 
         Returns:
             Implementation-defined raw content object.

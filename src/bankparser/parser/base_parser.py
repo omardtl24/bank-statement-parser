@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import Callable, List, Optional
 import pandas as pd
 from bankparser.models.transaction import Transaction
 import re
@@ -126,4 +126,58 @@ class Parser(ABC):
             raise ValueError("Parser results are empty. Run parse() first.")
 
         return df
+
+    def _extract_table_data(
+        self,
+        table: pd.DataFrame,
+        cols_groups_ids: dict[str, str | int],
+        default_values: dict[str, str] | None = None,
+        function_mapper: dict[str, Callable[[str], str]] | None = None,
+    ) -> List[Transaction]:
+        """Extract transactions from tabular data such as CSV DataFrames.
+
+        Args:
+            table: DataFrame with one row per transaction.
+            cols_groups_ids: Mapping between transaction field names and
+                DataFrame column labels or integer indices.
+            default_values: Fallback or fixed values injected into every
+                extracted transaction.
+            function_mapper: Mapping between transaction field names and
+                transformation functions applied after extraction/defaults.
+
+        Returns:
+            A list of ``Transaction`` objects created from table rows.
+
+        Raises:
+            AssertionError: If mapping keys include unsupported transaction
+                fields.
+            KeyError: If a configured table column is missing.
+            ValueError: Propagated when ``Transaction`` validation fails.
+        """
+        default_values = default_values or {}
+        function_mapper = function_mapper or {}
+
+        assert set(cols_groups_ids.keys()).issubset(PARAMS), "cols_groups_ids keys must be a subset of PARAMS"
+        assert set(default_values.keys()).issubset(PARAMS), "default_values keys must be a subset of PARAMS"
+        assert set(function_mapper.keys()).issubset(cols_groups_ids.keys()), "function_mapper keys must be a subset of cols_groups_ids keys"
+
+        data = []
+        for _, row in table.iterrows():
+            extracted = {}
+            for col_name, column_key in cols_groups_ids.items():
+                value = row[column_key]
+                if pd.isna(value):
+                    extracted[col_name] = ""
+                else:
+                    extracted[col_name] = str(value).strip()
+
+            for col_name, value in default_values.items():
+                extracted[col_name] = value
+
+            for col_name, func in function_mapper.items():
+                extracted[col_name] = func(extracted[col_name])
+
+            data.append(Transaction(**extracted))
+
+        return data
 
