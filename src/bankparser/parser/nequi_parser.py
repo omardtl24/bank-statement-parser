@@ -1,7 +1,7 @@
 from .base_parser import Parser
 from bankparser.loader.pdf_loader import PDFLoader
 
-DATA_PATTERN = r'\s*(\d{2}/\d{2}/\d{4})\s*([A-Za-záéíóúÁÉÍÓÚ\s]+)\s*\$(-?[\d,\.]+)\s*\$(-?[\d,\.]+)\s*'
+DATA_PATTERN = r'\s*(\d{2}/\d{2}/\d{4})\s*([A-Za-záéíóúÁÉÍÓÚ0-9\s]+)\s*\$(-?[\d,\.]+)\s*\$(-?[\d,\.]+)\s*'
 WALLET_COLS_GROUPS_IDS = {"date": 1, "description": 2, "amount": 3, "balance": 4}
 WALLET_DEFAULT_VALUES = {"account": "Nequi", "currency": "COP"}
 
