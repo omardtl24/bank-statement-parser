@@ -8,5 +8,16 @@ class Loader(ABC):
 
     @abstractmethod
     def load(self, file_path: str) -> object:
-        """Load and return raw text content from an extract path."""
+        """Load raw extract content from a file path.
+
+        Args:
+            file_path: Path to the file that should be read.
+
+        Returns:
+            Implementation-defined raw content object.
+
+        Raises:
+            NotImplementedError: Always raised by the abstract base
+                implementation. Concrete loaders must override this method.
+        """
         raise NotImplementedError

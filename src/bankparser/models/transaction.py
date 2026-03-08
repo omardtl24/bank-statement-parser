@@ -1,45 +1,60 @@
 from dataclasses import dataclass
-from datetime import date
+from datetime import date as Date
 from decimal import Decimal
-from typing import Optional
+from typing import Optional, Union
 
 from bankparser.models.category import Category, Subcategory
+from bankparser.utils.casting import parse_amount, parse_date
 
 
 @dataclass(slots=True)
 class Transaction:
     """Structured transaction extracted from a bank statement."""
 
-    date: date
+    date: Union[Date, str]
     description: str
-    amount: Decimal
-    category: Category
-    subcategory: Subcategory
+    amount: Union[Decimal, str]
+    currency: str
+    account: str
     balance: Optional[Decimal] = None
 
     def __post_init__(self) -> None:
-        """Ensure the selected subcategory belongs to the selected category."""
-        self.validate_subcategory()
+        """Normalize input values to strongly typed transaction fields.
 
-    def is_subcategory_in_category(self) -> bool:
-        """Return whether the transaction subcategory belongs to its category."""
-        return self.subcategory in self.category.subcategories
+        Args:
+            None.
 
-    def validate_subcategory(self) -> None:
-        """Raise ``ValueError`` if subcategory does not belong to category."""
-        if not self.is_subcategory_in_category():
-            raise ValueError(
-                f"Subcategory '{self.subcategory.name}' does not belong to "
-                f"category '{self.category.name}'."
-            )
-    
+        Returns:
+            None.
+
+        Raises:
+            ValueError: Propagated if date or amount parsing fails.
+            TypeError: Propagated if provided values are incompatible with
+                parsing helpers.
+        """
+        if isinstance(self.date, str):
+            self.date = parse_date(self.date)
+        if isinstance(self.amount, str):
+            self.amount = parse_amount(self.amount)
+
     def to_dict(self) -> dict:
-        """Return a dictionary representation of the transaction."""
+        """Serialize the transaction to a plain dictionary.
+
+        Args:
+            None.
+
+        Returns:
+            A dictionary with JSON-friendly values, including ISO date and
+            stringified decimals.
+
+        Raises:
+            AttributeError: If ``self.date`` does not expose ``isoformat``.
+        """
         return {
             "date": self.date.isoformat(),
             "description": self.description,
             "amount": str(self.amount),
-            "category": self.category.name,
-            "subcategory": self.subcategory.name,
-            "balance": str(self.balance) if self.balance is not None else None,
+            "account": self.account,
+            "currency": self.currency,
+            "balance": str(self.balance) if self.balance is not None else None
         }
