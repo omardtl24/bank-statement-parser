@@ -42,11 +42,11 @@ def parse_date(value: Union[str, date, datetime]) -> Union[date, datetime]:
     except ValueError:
         pass
 
-    # Lulo bank: "DD MMM. YYYY"
-    m = re.fullmatch(r"(\d{2})\s*([a-z]+)\.\s*(\d{4})", s_lower)
+    # Lulo bank and Payoneer: "DD MMM. YYYY" or "DD MMM, YYYY"
+    m = re.fullmatch(r"(\d{2})\s*([A-Za-z]+)[\.,]\s*(\d{4})", s_lower)
     if m:
         day, month, year = m.groups()
-        return date(int(year), MONTHS_ES[month], int(day))
+        return date(int(year), MONTHS_ES[month.lower()], int(day))
 
     # Standard: DD/MM/YYYY
     m = re.fullmatch(r"(\d{2})/(\d{2})/(\d{4})", s)
