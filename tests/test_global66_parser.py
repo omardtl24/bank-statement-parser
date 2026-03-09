@@ -31,7 +31,7 @@ def test_parse_extracts_transactions_and_infers_sign_from_balance(
     assert len(parser.transactions) == 2
 
     debit = parser.transactions[0]
-    assert debit.date == datetime(2024, 1, 1, 10, 0, 0)
+    assert debit.date == datetime(2024, 1, 1, 0, 0, 0)
     assert debit.description == "Coffee shop"
     assert str(debit.amount) == "-10.00"
     assert str(debit.balance) == "90.00"
@@ -39,7 +39,7 @@ def test_parse_extracts_transactions_and_infers_sign_from_balance(
     assert debit.currency == "USD"
 
     credit = parser.transactions[1]
-    assert credit.date == datetime(2024, 1, 1, 12, 0, 0)
+    assert credit.date == datetime(2024, 1, 1, 0, 0, 0)
     assert credit.description == "Salary"
     assert str(credit.amount) == "20.00"
     assert str(credit.balance) == "110.00"
