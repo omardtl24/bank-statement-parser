@@ -4,7 +4,7 @@ from decimal import Decimal
 from bankparser.utils import parse_amount
 import re
 
-GLOBAL66_PATTERN = r"(\d{4}\-\d{2}\-\d{2} \d{2}:\d{2}:\d{2})\s+(.+?)\s+\d+\s+\$([\d,.]+)\s+\$([\d,.]+)\s*"
+GLOBAL66_PATTERN = r"(\d{4}\-\d{2}\-\d{2}) \d{2}:\d{2}:\d{2}\s+(.+?)\s+\d+\s+\$([\d,.]+)\s+\$([\d,.]+)\s*"
 GLOBAL66_COLS_GROUPS_IDS = {"date": 1, "description": 2, "amount": 3, "balance": 4}
 
 class Global66Parser(Parser):
