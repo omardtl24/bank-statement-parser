@@ -19,13 +19,15 @@ class Parser(ABC):
     def __init__(
             self,
             file_path: str,
-            password: Optional[str] = None
+            password: Optional[str] = None,
+            **kwargs,
         ) -> None:
         """Initialize parser state for a statement source.
 
         Args:
             file_path: Path to the source statement file.
             password: Optional password used to open protected files.
+            **kwargs: Parser-specific options consumed by concrete parsers.
 
         Returns:
             None.
@@ -35,6 +37,7 @@ class Parser(ABC):
         """
         self.file_path = file_path
         self.password = password
+        self.kwargs = kwargs
         self.transactions: List[Transaction] = []
 
     @abstractmethod

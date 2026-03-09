@@ -72,3 +72,62 @@ def test_parse_raises_for_non_lulo_layout(monkeypatch: pytest.MonkeyPatch) -> No
 
     with pytest.raises(ValueError, match="Parsing failed due to file mismatch"):
         LuloBankParser("wrong-layout.pdf").parse()
+
+
+def test_parse_can_retrieve_only_movements(monkeypatch: pytest.MonkeyPatch) -> None:
+    LuloBankParser = _import_lulo_parser_class()
+
+    statement_text = (
+        "Header text\n"
+        "Movimientos\n"
+        "1 05 ene. 2024 06 ene. 2024 Supermercado -12,34\n"
+        "2 07 ene. 2024 08 ene. 2024 Nomina +1.234,56\n"
+        "Bolsillos\n"
+        "1 09 ene. 2024 Ahorro +10,00\n"
+    )
+
+    monkeypatch.setattr(
+        "bankparser.parser.lulo_bank_parser.PDFLoader.load",
+        lambda *_args, **_kwargs: statement_text,
+    )
+
+    parser = LuloBankParser("dummy.pdf", section="movements").parse()
+
+    assert len(parser.transactions) == 2
+    assert parser.transactions[0].account == "Lulo Bank"
+    assert parser.transactions[1].account == "Lulo Bank"
+
+
+def test_parse_can_retrieve_only_pockets(monkeypatch: pytest.MonkeyPatch) -> None:
+    LuloBankParser = _import_lulo_parser_class()
+
+    statement_text = (
+        "Header text\n"
+        "Movimientos\n"
+        "1 05 ene. 2024 06 ene. 2024 Supermercado -12,34\n"
+        "2 07 ene. 2024 08 ene. 2024 Nomina +1.234,56\n"
+        "Bolsillos\n"
+        "1 09 ene. 2024 Ahorro +10,00\n"
+    )
+
+    monkeypatch.setattr(
+        "bankparser.parser.lulo_bank_parser.PDFLoader.load",
+        lambda *_args, **_kwargs: statement_text,
+    )
+
+    parser = LuloBankParser("dummy.pdf", section="pockets").parse()
+
+    assert len(parser.transactions) == 1
+    assert parser.transactions[0].account == "Lulo Bank Pockets"
+
+
+def test_parse_rejects_invalid_section(monkeypatch: pytest.MonkeyPatch) -> None:
+    LuloBankParser = _import_lulo_parser_class()
+
+    monkeypatch.setattr(
+        "bankparser.parser.lulo_bank_parser.PDFLoader.load",
+        lambda *_args, **_kwargs: "any content",
+    )
+
+    with pytest.raises(ValueError, match="Invalid section option"):
+        LuloBankParser("dummy.pdf", section="invalid").parse()
