@@ -10,7 +10,7 @@ PARAMS = [
     "amount",
     "balance",
     "currency",
-    "account",
+    "account"
 ]
 
 class Parser(ABC):
@@ -60,8 +60,9 @@ class Parser(ABC):
                       text: str,
                       pattern: str,
                       cols_groups_ids: dict[str, int | None],
-                      default_values: dict[str, str] = {},
-                      function_mapper: dict[str, callable] = {}
+                      default_values: dict[str, str] | None = None,
+                      function_mapper: dict[str, Callable[[str], str]] | None = None,
+                      amount_groups_ids: dict[str, int | None] | None = None,
         ) -> List[Transaction]:
         """Extract transactions from text lines using a regular expression.
 
@@ -76,6 +77,11 @@ class Parser(ABC):
             function_mapper: Mapping between transaction field names and functions that take 
                 the extracted string value and return a transformed value.Applied after regex 
                 extraction and default value injection.
+            amount_groups_ids: Optional mapping that supports split amount
+                extraction from separate columns, with accepted keys
+                ``income`` and/or ``expense``. If provided, ``amount`` is
+                generated using the first non-empty value where expense values
+                are normalized to negative amounts.
 
         Returns:
             A list of ``Transaction`` objects created from all matching lines.
@@ -89,9 +95,18 @@ class Parser(ABC):
                 (for example, invalid date/amount parsing).
         """
 
+        default_values = default_values or {}
+        function_mapper = function_mapper or {}
+        amount_groups_ids = amount_groups_ids or {}
+
         assert set(cols_groups_ids.keys()).issubset(PARAMS), "cols_groups_ids keys must be a subset of PARAMS"
         assert set(default_values.keys()).issubset(PARAMS), "default_values keys must be a subset of PARAMS"
-        assert set(function_mapper.keys()).issubset(cols_groups_ids.keys()), "function_mapper keys must be a subset of cols_groups_ids keys"
+        assert set(amount_groups_ids.keys()).issubset({"income", "expense"}), "amount_groups_ids keys must be income and/or expense"
+
+        valid_mapper_keys = set(cols_groups_ids.keys())
+        if amount_groups_ids:
+            valid_mapper_keys.add("amount")
+        assert set(function_mapper.keys()).issubset(valid_mapper_keys), "function_mapper keys must be a subset of extracted keys"
         
         flows = text.split('\n')
         data = []
@@ -102,6 +117,28 @@ class Parser(ABC):
                     col_name: match_.group(id).strip() if id is not None else ""
                     for col_name, id in cols_groups_ids.items()
                 }
+
+                if amount_groups_ids:
+                    income_value = ""
+                    if "income" in amount_groups_ids:
+                        income_group = amount_groups_ids["income"]
+                        income_value = match_.group(income_group).strip() if income_group is not None else ""
+
+                    expense_value = ""
+                    if "expense" in amount_groups_ids:
+                        expense_group = amount_groups_ids["expense"]
+                        expense_value = match_.group(expense_group).strip() if expense_group is not None else ""
+
+                    if income_value:
+                        r["amount"] = income_value
+                    elif expense_value:
+                        if expense_value.startswith("-"):
+                            r["amount"] = expense_value
+                        elif expense_value.startswith("+"):
+                            r["amount"] = f"-{expense_value[1:]}"
+                        else:
+                            r["amount"] = f"-{expense_value}"
+
                 for col_name, value in default_values.items():
                     r[col_name] = value
                 for col_name, func in function_mapper.items():

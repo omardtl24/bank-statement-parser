@@ -4,6 +4,7 @@ from .models import Transaction
 from .parser import (
 	BancolombiaParser,
 	CSVParser,
+	Global66Parser,
 	LuloBankParser,
 	NequiParser,
 	Parser,
@@ -19,6 +20,7 @@ __all__ = [
 	"Transaction",
 	"Parser",
 	"CSVParser",
+	"Global66Parser",
 	"LuloBankParser",
 	"BancolombiaParser",
 	"NequiParser",
