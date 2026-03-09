@@ -3,10 +3,16 @@ from decimal import Decimal
 from typing import Union
 import re
 
-MONTHS_ES = {
+MONTHS = {
+    # Spanish
     "ene": 1, "feb": 2, "mar": 3, "abr": 4,
     "may": 5, "jun": 6, "jul": 7, "ago": 8,
-    "sep": 9, "oct": 10, "nov": 11, "dic": 12
+    "sep": 9, "oct": 10, "nov": 11, "dic": 12,
+
+    # English
+    "jan": 1, "feb": 2, "mar": 3, "apr": 4,
+    "may": 5, "jun": 6, "jul": 7, "aug": 8,
+    "sep": 9, "oct": 10, "nov": 11, "dec": 12
 }
 
 
@@ -46,7 +52,7 @@ def parse_date(value: Union[str, date, datetime]) -> Union[date, datetime]:
     m = re.fullmatch(r"(\d{2})\s*([A-Za-z]+)[\.,]\s*(\d{4})", s_lower)
     if m:
         day, month, year = m.groups()
-        return date(int(year), MONTHS_ES[month.lower()], int(day))
+        return date(int(year), MONTHS[month.lower()], int(day))
 
     # Standard: DD/MM/YYYY
     m = re.fullmatch(r"(\d{2})/(\d{2})/(\d{4})", s)
